@@ -8,13 +8,163 @@
   <link href="css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
     <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" type="text/css" href="css/timer.css">
 <link rel="stylesheet" type="text/css" href="https://js.cit.api.here.com/v3/3.0/mapsjs-ui.css" />
 <script type="text/javascript" src="https://js.cit.api.here.com/v3/3.0/mapsjs-core.js"></script>
 <script type="text/javascript" src="https://js.cit.api.here.com/v3/3.0/mapsjs-service.js"></script>
 <script type="text/javascript" src="https://js.cit.api.here.com/v3/3.0/mapsjs-ui.js"></script>
 <script type="text/javascript" src="https://js.cit.api.here.com/v3/3.0/mapsjs-mapevents.js"></script>
+<!--style for the map I guess reference: https://developer.here.com/api-explorer/maps-js/v3.0/servicesRouting/map-with-pedestrian-route-from-a-to-b-->
+<style type="text/css">
+.directions li span.arrow {
+  display:inline-block;
+  min-width:28px;
+  min-height:28px;
+  background-position:0px;
+  background-image: url("../img/arrows.png");
+  position:relative;
+  top:8px;
+}
+.directions li span.depart  {
+  background-position:-28px;
+}
+.directions li span.rightUTurn  {
+  background-position:-56px;
+}
+.directions li span.leftUTurn  {
+  background-position:-84px;
+}
+.directions li span.rightFork  {
+  background-position:-112px;
+}
+.directions li span.leftFork  {
+  background-position:-140px;
+}
+.directions li span.rightMerge  {
+  background-position:-112px;
+}
+.directions li span.leftMerge  {
+  background-position:-140px;
+}
+.directions li span.slightRightTurn  {
+  background-position:-168px;
+}
+.directions li span.slightLeftTurn{
+  background-position:-196px;
+}
+.directions li span.rightTurn  {
+  background-position:-224px;
+}
+.directions li span.leftTurn{
+  background-position:-252px;
+}
+.directions li span.sharpRightTurn  {
+  background-position:-280px;
+}
+.directions li span.sharpLeftTurn{
+  background-position:-308px;
+}
+.directions li span.rightRoundaboutExit1 {
+  background-position:-616px;
+}
+.directions li span.rightRoundaboutExit2 {
+  background-position:-644px;
+}
 
+.directions li span.rightRoundaboutExit3 {
+  background-position:-672px;
+}
 
+.directions li span.rightRoundaboutExit4 {
+  background-position:-700px;
+}
+
+.directions li span.rightRoundaboutPass {
+  background-position:-700px;
+}
+
+.directions li span.rightRoundaboutExit5 {
+  background-position:-728px;
+}
+.directions li span.rightRoundaboutExit6 {
+  background-position:-756px;
+}
+.directions li span.rightRoundaboutExit7 {
+  background-position:-784px;
+}
+.directions li span.rightRoundaboutExit8 {
+  background-position:-812px;
+}
+.directions li span.rightRoundaboutExit9 {
+  background-position:-840px;
+}
+.directions li span.rightRoundaboutExit10 {
+  background-position:-868px;
+}
+.directions li span.rightRoundaboutExit11 {
+  background-position:896px;
+}
+.directions li span.rightRoundaboutExit12 {
+  background-position:924px;
+}
+.directions li span.leftRoundaboutExit1  {
+  background-position:-952px;
+}
+.directions li span.leftRoundaboutExit2  {
+  background-position:-980px;
+}
+.directions li span.leftRoundaboutExit3  {
+  background-position:-1008px;
+}
+.directions li span.leftRoundaboutExit4  {
+  background-position:-1036px;
+}
+.directions li span.leftRoundaboutPass {
+  background-position:1036px;
+}
+.directions li span.leftRoundaboutExit5  {
+  background-position:-1064px;
+}
+.directions li span.leftRoundaboutExit6  {
+  background-position:-1092px;
+}
+.directions li span.leftRoundaboutExit7  {
+  background-position:-1120px;
+}
+.directions li span.leftRoundaboutExit8  {
+  background-position:-1148px;
+}
+.directions li span.leftRoundaboutExit9  {
+  background-position:-1176px;
+}
+.directions li span.leftRoundaboutExit10  {
+  background-position:-1204px;
+}
+.directions li span.leftRoundaboutExit11  {
+  background-position:-1232px;
+}
+.directions li span.leftRoundaboutExit12  {
+  background-position:-1260px;
+}
+.directions li span.arrive  {
+  background-position:-1288px;
+}
+.directions li span.leftRamp  {
+  background-position:-392px;
+}
+.directions li span.rightRamp  {
+  background-position:-420px;
+}
+.directions li span.leftExit  {
+  background-position:-448px;
+}
+.directions li span.rightExit  {
+  background-position:-476px;
+}
+
+.directions li span.ferry  {
+  background-position:-1316px;
+</style>
 
   </head>
 
@@ -56,7 +206,7 @@
                                <li><a href="#">Near by</a></li>
                              </ul>
                            </div><!-- /btn-group -->
-                           <input type="text" class="form-control" aria-label="...">
+                           <input type="text" class="form-control" aria-label="..." id="end-address" value="">
                          </div><!-- /input-group -->
                     </div>
                     <div class="col-md-4 col-sm-12">
@@ -76,12 +226,43 @@
             <div class="col-md-12">
               <div class="map" id="step2">
                     <div class="here--map">
-                      <div id="map" style="width: 100%; height: 400px; background: grey" />
+                        <div id="map" style="osition:absolute; height: 600px; width:100%; background:grey" ></div>
                     </div>
               </div>
         </div>
     </div>
 
+</div>
+
+<div id="panel" style="position:absolute; width:49%; left:51%; height:100%; background:inherit" ></div>
+
+<!--reference: https://www.sitepoint.com/build-javascript-countdown-timer-no-dependencies/-->
+<div style="position:absolute; width:49%; height:100%; background:inherit">
+  <button class="btn btn-default" id="running-start-button">
+      <span>Run!</span>
+  </button>
+
+  <div id="time-pannel">
+    <h1>Countdown To Send Alert to friend</h1>
+    <div id="clockdiv">
+      <div>
+        <span class="days"></span>
+        <div class="smalltext">Days</div>
+      </div>
+      <div>
+        <span class="hours"></span>
+        <div class="smalltext">Hours</div>
+      </div>
+      <div>
+        <span class="minutes"></span>
+        <div class="smalltext">Minutes</div>
+      </div>
+      <div>
+        <span class="seconds"></span>
+        <div class="smalltext">Seconds</div>
+      </div>
+    </div>
+  </div>
 </div>
 
 
